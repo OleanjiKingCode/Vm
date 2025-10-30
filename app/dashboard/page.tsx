@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   MdAdd,
   MdEdit,
-  MdDelete,
   MdLogout,
   MdPerson,
   MdMenu,
@@ -71,11 +70,11 @@ export default function DashboardPage() {
   );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [editingVisitor, setEditingVisitor] = useState<Visitor | null>(null);
   const [viewingVisitor, setViewingVisitor] = useState<Visitor | null>(null);
-  const [deletingVisitorId, setDeletingVisitorId] = useState<number | null>(
+  const [signingOutVisitorId, setSigningOutVisitorId] = useState<number | null>(
     null
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -138,21 +137,21 @@ export default function DashboardPage() {
     setIsViewDialogOpen(true);
   };
 
-  const handleDeleteClick = (id: number) => {
-    setDeletingVisitorId(id);
-    setIsDeleteDialogOpen(true);
+  const handleSignOutClick = (id: number) => {
+    setSigningOutVisitorId(id);
+    setIsSignOutDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (deletingVisitorId !== null) {
+  const handleSignOutConfirm = async () => {
+    if (signingOutVisitorId !== null) {
       try {
-        const response = await visitorApi.signOut(deletingVisitorId, "yes");
+        const response = await visitorApi.signOut(signingOutVisitorId, "yes");
 
         if (response.responseCode === "00") {
           toast.success("Visitor signed out successfully!");
           mutate(); // Revalidate data
-          setIsDeleteDialogOpen(false);
-          setDeletingVisitorId(null);
+          setIsSignOutDialogOpen(false);
+          setSigningOutVisitorId(null);
         } else {
           toast.error(response.responseMessage || "Failed to sign out visitor");
         }
@@ -352,16 +351,15 @@ export default function DashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Interviews</p>
+                  <p className="text-sm text-gray-600 mb-1">Signed In</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {isLoading
                       ? "..."
-                      : visitors.filter((v) => v.purposeOfVisit === "Interview")
-                          .length}
+                      : visitors.filter((v) => v.signOut === null).length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">👥</span>
+                  <span className="text-2xl">✅</span>
                 </div>
               </div>
             </CardContent>
@@ -434,6 +432,9 @@ export default function DashboardPage() {
                     >
                       Time In <SortIcon field="timeIn" />
                     </TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Status
+                    </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -478,6 +479,19 @@ export default function DashboardPage() {
                         <TableCell className="hidden lg:table-cell">
                           {visitor.timeIn}
                         </TableCell>
+                        <TableCell className="hidden xl:table-cell">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              visitor.signOut === null
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {visitor.signOut === null
+                              ? "Signed In"
+                              : "Signed Out"}
+                          </span>
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button
@@ -499,13 +513,13 @@ export default function DashboardPage() {
                             <Button
                               size="sm"
                               onClick={() =>
-                                handleDeleteClick(visitor.vistorId)
+                                handleSignOutClick(visitor.vistorId)
                               }
-                              disabled
-                              className="bg-red-100 hover:bg-red-200 text-red-700 border-0 shadow-none h-8 px-3"
-                              title="Delete not available - API only supports add"
+                              className="bg-orange-100 hover:bg-orange-200 text-orange-700 border-0 shadow-none h-8 px-3"
+                              title="Sign out visitor"
+                              disabled={visitor.signOut !== null}
                             >
-                              <MdDelete className="w-4 h-4" />
+                              <MdLogout className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -687,28 +701,27 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      {/* Sign Out Confirmation Dialog */}
+      <Dialog open={isSignOutDialogOpen} onOpenChange={setIsSignOutDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Visitor</DialogTitle>
+            <DialogTitle>Sign Out Visitor</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this visitor? This action cannot
-              be undone.
+              Are you sure you want to sign out this visitor?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
+              onClick={() => setIsSignOutDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
+              onClick={handleSignOutConfirm}
+              className="bg-orange-600 hover:bg-orange-700"
             >
-              Delete
+              Sign Out
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -793,6 +806,22 @@ export default function DashboardPage() {
                   </div>
                 </div>
               )}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-sm font-medium text-gray-600">Status:</div>
+                <div className="col-span-2 text-sm">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      viewingVisitor.signOut === null
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {viewingVisitor.signOut === null
+                      ? "Signed In"
+                      : "Signed Out"}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
           <DialogFooter>
