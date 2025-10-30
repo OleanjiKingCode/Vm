@@ -35,7 +35,7 @@ async function apiCall<T>(
   };
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.Authorization = `bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
