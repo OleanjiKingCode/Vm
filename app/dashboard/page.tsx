@@ -501,8 +501,9 @@ export default function DashboardPage() {
                               onClick={() =>
                                 handleDeleteClick(visitor.vistorId)
                               }
+                              disabled
                               className="bg-red-100 hover:bg-red-200 text-red-700 border-0 shadow-none h-8 px-3"
-                              title="Sign out visitor"
+                              title="Delete not available - API only supports add"
                             >
                               <MdDelete className="w-4 h-4" />
                             </Button>
