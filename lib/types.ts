@@ -34,7 +34,7 @@ export interface ConfirmOTPRequest {
 
 // Visitor Types
 export interface Visitor {
-  vistorId: number;
+  visitorId: number;
   dateCreated: string;
   tagNumber: string;
   name: string;
@@ -60,6 +60,6 @@ export interface AddVisitorRequest {
 }
 
 export interface SignOutVisitorRequest {
-  vistorId: number;
+  visitorId: number;
   signOut: string;
 }

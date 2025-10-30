@@ -96,11 +96,11 @@ export const visitorApi = {
   },
 
   signOut: async (
-    vistorId: number,
+    visitorId: number,
     signOut: string
   ): Promise<ApiResponse<null>> => {
     return apiCall<null>(
-      `/Visitor/SignOutVisitor?vistorId=${vistorId}&SignOut=${signOut}`,
+      `/Visitor/SignOutVisitor?visitorId=${visitorId}&SignOut=${signOut}`,
       {
         method: "POST",
       }

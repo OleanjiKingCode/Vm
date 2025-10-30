@@ -143,7 +143,7 @@ export default function DashboardPage() {
   };
 
   const handleSignOutConfirm = async () => {
-    if (signingOutVisitorId !== null) {
+    if (signingOutVisitorId !== null && signingOutVisitorId !== undefined) {
       try {
         const response = await visitorApi.signOut(signingOutVisitorId, "yes");
 
@@ -459,7 +459,7 @@ export default function DashboardPage() {
                     </TableRow>
                   ) : (
                     currentVisitors.map((visitor, index) => (
-                      <TableRow key={visitor.vistorId}>
+                      <TableRow key={visitor.visitorId}>
                         <TableCell className="text-gray-600">
                           {startIndex + index + 1}
                         </TableCell>
@@ -513,7 +513,7 @@ export default function DashboardPage() {
                             <Button
                               size="sm"
                               onClick={() =>
-                                handleSignOutClick(visitor.vistorId)
+                                handleSignOutClick(visitor.visitorId)
                               }
                               className="bg-orange-100 hover:bg-orange-200 text-orange-700 border-0 shadow-none h-8 px-3"
                               title="Sign out visitor"
